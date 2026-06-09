@@ -5,11 +5,13 @@ import istad.co.product_api_simple_demo.dto.product.ProductResponse;
 import istad.co.product_api_simple_demo.dto.product.UpdateProductRequest;
 import istad.co.product_api_simple_demo.entity.Product;
 import istad.co.product_api_simple_demo.repository.ProductRepository;
+import istad.co.product_api_simple_demo.repository.ProductRepositoryOld;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
@@ -18,9 +20,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProductServiceImpl implements ProductService{
 
-    private final ProductRepository productRepository;
+//    private final ProductRepositoryOld productRepository;
 
-    private static Integer nextId = 1000;
+
+    private final ProductRepository productRepository;
+//    private static Integer nextId = 1000;
 
 
     private static ProductResponse mapToResponse(Product product){
@@ -46,26 +50,24 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public ProductResponse createProduct(ProductRequest productRequest) {
-
-
         Product product = mapToEntity(productRequest);
-        product.setId(nextId++);
+
         product.setUserId(1);
 
-        return mapToResponse(productRepository.createProduct(product));
+        return mapToResponse(productRepository.save(product));
     }
 
     @Override
     public List<ProductResponse> findAllProducts() {
 
-        return productRepository.getAllProducts().stream()
+        return productRepository.findAll().stream()
                 .map(ProductServiceImpl::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ProductResponse findProductById(Integer id) {
-        var product = productRepository.findProductById(id);
+        var product = productRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Product with id = " + id + "not found"));
         if(product == null){
             log.info("Product with id {} not found", id);
             return null;
@@ -81,7 +83,7 @@ public class ProductServiceImpl implements ProductService{
     public ProductResponse updateProduct(Integer id, UpdateProductRequest product) {
 
 
-        var existProduct = productRepository.findProductById(id);
+        var existProduct = productRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Product with id = " + id + "not found"));
         if(existProduct ==  null){
             log.info("Product with id {} not found", id);
         }
@@ -99,13 +101,13 @@ public class ProductServiceImpl implements ProductService{
             existProduct.setDescription(product.description());
         }
 
-        productRepository.updateProduct(existProduct);
+        productRepository.save(existProduct);
         return mapToResponse(existProduct);
     }
 
     @Override
     public boolean deleteProduct(int id) {
-        return productRepository.deleteProductById(id);
+        return productRepository.removeProductById(id);
     }
 
 }

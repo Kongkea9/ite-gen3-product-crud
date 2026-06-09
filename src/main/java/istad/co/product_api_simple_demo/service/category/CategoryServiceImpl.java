@@ -22,9 +22,10 @@ public class CategoryServiceImpl implements CategoryService{
 
     CategoryResponse mapFromCategoryToCategoryResponse(Category category){
                      return new CategoryResponse(
+                             category.getId(),
                              category.getName(),
                              category.getDescription(),
-                             category.getStatus(),
+                             category.getIsActive(),
                              category.getCreatedAt(),
                              category.getUpdatedAt()
                      );
@@ -36,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService{
                 .builder()
                 .name(categoryRequest.name())
                 .description(categoryRequest.description())
-                .status(categoryRequest.status())
+                .isActive(categoryRequest.isActive())
                 .build();
 
     }
@@ -67,30 +68,32 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest categoryRequest) {
+    public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest request) {
 
         var category = categoryRepository.getCategoryById(id);
-        if(category == null){
-            log.info("Category with id {} not found", id);
+
+        if (category == null) {
+            throw new RuntimeException("Category with id " + id + " not found");
         }
 
-        if(categoryRequest.name() != null){
-            category.setName(categoryRequest.name());
+        if (request.name() != null && !request.name().isBlank()) {
+            category.setName(request.name());
         }
 
-        if(categoryRequest.description() != null){
-            category.setDescription(categoryRequest.description());
+        if (request.description() != null && !request.description().isBlank()) {
+            category.setDescription(request.description());
         }
 
-        if(categoryRequest.status() != null){
-            category.setStatus(categoryRequest.status());
+        if (request.isActive() != null) {
+            category.setIsActive(request.isActive());
         }
 
         category.setUpdatedAt(LocalDateTime.now());
 
-        return mapFromCategoryToCategoryResponse(categoryRepository.updateCategory(category));
+        return mapFromCategoryToCategoryResponse(
+                categoryRepository.updateCategory(category)
+        );
     }
-
     @Override
     public boolean deleteCategory(Integer id) {
         return categoryRepository.deleteCategoryById(id);

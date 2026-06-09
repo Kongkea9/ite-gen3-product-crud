@@ -37,7 +37,7 @@ public class CategoryController {
 
 
     @PutMapping("/{id}")
-    public CategoryResponse updateCategory(@Valid @PathVariable Integer id, @RequestBody UpdateCategoryRequest updateCategoryRequest){
+    public CategoryResponse updateCategory(@Valid @RequestBody UpdateCategoryRequest updateCategoryRequest, @PathVariable Integer id){
         return categoryService.updateCategory(id, updateCategoryRequest);
     }
 

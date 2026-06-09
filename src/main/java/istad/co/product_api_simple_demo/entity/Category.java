@@ -16,7 +16,7 @@ public class Category {
     private Integer id;
     private String name;
     private String description;
-    private String status;
+    private  Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

@@ -8,12 +8,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Repository
 public class CategoryRepository {
 
     private List<Category> categories = new ArrayList<>(
-        List.of(new Category(1, "Drink","For drink","active", LocalDateTime.now(), LocalDateTime.now()))
+        List.of(new Category(1, "Drink","For drink",true, LocalDateTime.now(), LocalDateTime.now()))
     );
 
 
@@ -22,7 +23,7 @@ public class CategoryRepository {
     }
 
     public Category getCategoryById(Integer id){
-        return categories.stream().filter(e->e.getId() == id)
+        return categories.stream().filter(e-> Objects.equals(e.getId(), id))
                 .findFirst().orElseThrow(() -> new NoSuchElementException("Category with id " + id + " not found"));
     }
 
@@ -33,17 +34,19 @@ public class CategoryRepository {
     }
 
     public boolean deleteCategoryById(Integer id){
-           return categories.removeIf(category -> category.getId() == id);
+           return categories.removeIf(category -> Objects.equals(category.getId(), id));
     }
 
-    public Category updateCategory(Category category){
+    public Category updateCategory(Category category) {
 
-           return (Category) categories.stream().filter(c -> c.getId() == category.getId())
-                   .map(i -> {
-                       categories.set(i.getId(), category);
-                       return category;
-                   });
+        for (int i = 0; i < categories.size(); i++) {
+            if (Objects.equals(categories.get(i).getId(), category.getId())) {
+                categories.set(i, category);
+                return category;
+            }
+        }
 
+        return null;
     }
 
 

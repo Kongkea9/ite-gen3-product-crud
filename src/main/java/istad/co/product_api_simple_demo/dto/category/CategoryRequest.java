@@ -1,21 +1,22 @@
 package istad.co.product_api_simple_demo.dto.category;
 
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record CategoryRequest(
 
-        @NotNull(message = "Name is required")
-        @Max(255)
+        @NotBlank(message = "Name is required")
+        @Size(max = 255, message = "Name must be at most 255 characters")
         String name,
 
 
-        @NotNull(message = "Description is required")
-        @Max(255)
+        @NotBlank(message = "Description is required")
+        @Size(max = 255, message = "Description must be at most 255 characters")
         String description,
 
         @NotNull(message = "Status is required")
-        @Max(255)
-        String status
+        Boolean isActive
 ) {
 }
