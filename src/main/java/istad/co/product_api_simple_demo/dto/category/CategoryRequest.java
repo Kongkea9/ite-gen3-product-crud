@@ -11,12 +11,22 @@ public record CategoryRequest(
         @Size(max = 255, message = "Name must be at most 255 characters")
         String name,
 
-
         @NotBlank(message = "Description is required")
         @Size(max = 255, message = "Description must be at most 255 characters")
-        String description,
+        String description
 
-        @NotNull(message = "Status is required")
-        Boolean isActive
+
+
+
+
+
+
+
+
+
+
+
+
+        
 ) {
 }

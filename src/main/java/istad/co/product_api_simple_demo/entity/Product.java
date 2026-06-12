@@ -1,10 +1,7 @@
 package istad.co.product_api_simple_demo.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -23,5 +20,11 @@ public class Product {
     private  String description;
     private Float price;
     private int userId; // user that create the product
+
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
 }

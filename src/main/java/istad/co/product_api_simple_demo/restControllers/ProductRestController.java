@@ -7,6 +7,10 @@ import istad.co.product_api_simple_demo.dto.product.UpdateProductRequest;
 import istad.co.product_api_simple_demo.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,9 +23,20 @@ public class ProductRestController {
     private final ProductService productService;
 
 
+//    @GetMapping
+//    public List<ProductResponse> getAllProducts(){
+//       return  productService.findAllProducts();
+//    }
+//
+
     @GetMapping
-    public List<ProductResponse> getAllProducts(){
-       return  productService.findAllProducts();
+    public Page<ProductResponse> getAllProducts( @PageableDefault(page = 1, size = 20) Pageable pageable){
+        return productService.findAllProducts(pageable);
+    }
+
+    @GetMapping("/search/{name}")
+    public Page<ProductResponse> getProductsByName(@PageableDefault(page = 0, size = 10) Pageable pageable , @PathVariable String name){
+        return productService.searchProductByKeyword(name, pageable);
     }
 
     @GetMapping("{id}")
@@ -35,7 +50,9 @@ public class ProductRestController {
     }
 
     @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Integer id){
+
         productService.deleteProduct(id);
     }
 

@@ -1,13 +1,18 @@
 package istad.co.product_api_simple_demo.service.product;
 
+import istad.co.product_api_simple_demo.dto.category.CategoryResponse;
 import istad.co.product_api_simple_demo.dto.product.ProductRequest;
 import istad.co.product_api_simple_demo.dto.product.ProductResponse;
 import istad.co.product_api_simple_demo.dto.product.UpdateProductRequest;
+import istad.co.product_api_simple_demo.entity.Category;
 import istad.co.product_api_simple_demo.entity.Product;
+import istad.co.product_api_simple_demo.mapper.ProductMapper;
+import istad.co.product_api_simple_demo.repository.CategoryRepository;
 import istad.co.product_api_simple_demo.repository.ProductRepository;
-import istad.co.product_api_simple_demo.repository.ProductRepositoryOld;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,51 +23,41 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Slf4j
+
 public class ProductServiceImpl implements ProductService{
 
-//    private final ProductRepositoryOld productRepository;
-
-
     private final ProductRepository productRepository;
-//    private static Integer nextId = 1000;
+    private final ProductMapper productMapper;
+    private final CategoryRepository categoryRepository;
 
-
-    private static ProductResponse mapToResponse(Product product){
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice()
-        );
-    }
-
-
-    private Product mapToEntity(ProductRequest productRequest){
-
-        return Product.builder()
-                .name(productRequest.name())
-                .description(productRequest.description())
-                .price(productRequest.price())
-                .build();
-
-
-    }
 
     @Override
     public ProductResponse createProduct(ProductRequest productRequest) {
-        Product product = mapToEntity(productRequest);
+
+        Category category = categoryRepository.findById(productRequest.categoryId())
+                .orElseThrow(() -> new NoSuchElementException("Category with id " + productRequest.categoryId() + " does not exist."));
+
+
+
+        Product product = productMapper.mapToEntity(productRequest);
+        product.setCategory(category);
 
         product.setUserId(1);
 
-        return mapToResponse(productRepository.save(product));
+        return productMapper.mapToResponse(productRepository.save(product));
     }
 
     @Override
     public List<ProductResponse> findAllProducts() {
 
         return productRepository.findAll().stream()
-                .map(ProductServiceImpl::mapToResponse)
+                .map(productMapper::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ProductResponse> findAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable).map(productMapper::mapToResponse);
     }
 
     @Override
@@ -73,7 +68,7 @@ public class ProductServiceImpl implements ProductService{
             return null;
         }
 
-        return mapToResponse(product);
+        return productMapper.mapToResponse(product);
 
     }
 
@@ -102,12 +97,18 @@ public class ProductServiceImpl implements ProductService{
         }
 
         productRepository.save(existProduct);
-        return mapToResponse(existProduct);
+        return productMapper.mapToResponse(existProduct);
     }
 
     @Override
-    public boolean deleteProduct(int id) {
-        return productRepository.removeProductById(id);
+    public void deleteProduct(int id) {
+        productRepository.deleteById(id);
     }
+
+    @Override
+    public Page<ProductResponse> searchProductByKeyword(String keyword, Pageable pageable) {
+        return productRepository.searchProductByNameContainsIgnoreCase(keyword, pageable).map(productMapper::mapToResponse);
+    }
+
 
 }

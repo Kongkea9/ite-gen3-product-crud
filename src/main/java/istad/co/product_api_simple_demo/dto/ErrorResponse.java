@@ -13,8 +13,6 @@ public record ErrorResponse<T>(
         T errors,
         Integer status
 
-
-
 ) {
 }
 

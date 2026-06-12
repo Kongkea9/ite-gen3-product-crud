@@ -14,9 +14,6 @@ public record UpdateCategoryRequest(
 
         @NotBlank(message = "Description is required")
         @Size(max = 255, message = "Description must be at most 255 characters")
-        String description,
-
-        @NotNull(message = "Status is required")
-        Boolean isActive
+        String description
 ) {
 }

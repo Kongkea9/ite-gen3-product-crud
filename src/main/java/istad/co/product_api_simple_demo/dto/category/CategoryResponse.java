@@ -6,7 +6,7 @@ public record CategoryResponse(
         Integer id,
         String name,
         String description,
-        Boolean isActive,
+        Boolean isDeleted,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 
